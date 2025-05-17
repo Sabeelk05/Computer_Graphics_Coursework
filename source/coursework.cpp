@@ -28,6 +28,20 @@ struct Object {
     std::string name;
 };
 
+struct Light {
+    glm::vec3 position;
+    glm::vec3 colour;
+    float constant;
+    float linear;
+    float quadratic;
+    unsigned int type;
+};
+
+std::vector<Light> lightSources;
+
+
+
+
 float previousTime = 0.0f;
 float timeChange = 0.0f;
 
@@ -315,6 +329,19 @@ int main( void )
     glm::vec3 lightPos = glm::vec3(2.0f, 2.0f, 2.0f);
     glm::vec3 lightColour = glm::vec3(1.0f, 1.0f, 0.5f);
 
+    Light light;
+    light.position = glm::vec3(2.0f, 2.0f, 2.0f);
+    light.colour= glm::vec3(1.0f, 1.0f, 1.0f);
+	light.constant = 1.0f;
+	light.linear = 0.1f;
+	light.quadratic = 0.02f;
+	light.type = 1;
+	lightSources.push_back(light); //adds the light to the vector
+
+    light.position = glm::vec3(1.0f, 1.0f, -8.0f);
+    lightSources.push_back(light);
+
+
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -356,6 +383,27 @@ int main( void )
 
 		glBindTexture(GL_TEXTURE_2D, texture); //binds the texture to the shader)
         glBindVertexArray(VAO);
+
+
+        // Send multiple light source properties to the shader
+        for (unsigned int i = 0; i < static_cast<unsigned int>(lightSources.size()); i++)
+        {
+            glm::vec3 viewSpaceLightPosition = glm::vec3(camera.view * glm::vec4(lightSources[i].position, 1.0f));
+            std::string idx = std::to_string(i);
+            glUniform3fv(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].colour").c_str()), 1, &lightSources[i].colour[0]);
+            glUniform3fv(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].position").c_str()), 1, &viewSpaceLightPosition[0]);
+            glUniform1f(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].constant").c_str()), lightSources[i].constant);
+            glUniform1f(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].linear").c_str()), lightSources[i].linear);
+            glUniform1f(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].quadratic").c_str()), lightSources[i].quadratic);
+            glUniform1i(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].type").c_str()), lightSources[i].type);
+        }
+
+        // Send object lighting properties to the fragment shader
+        glUniform1f(glGetUniformLocation(shaderID, "ka"), donkeyKong.ka);
+        glUniform1f(glGetUniformLocation(shaderID, "kd"), donkeyKong.kd);
+        glUniform1f(glGetUniformLocation(shaderID, "ks"), donkeyKong.ks);
+        glUniform1f(glGetUniformLocation(shaderID, "Ns"), donkeyKong.Ns);
+
 
 
 		glEnableVertexAttribArray(1); //sending uv buffer data to the shader
@@ -401,21 +449,26 @@ int main( void )
 // Activate light source shader
         glUseProgram(shaderID);
 
-        // Calculate model matrix
-        glm::mat4 translate = Maths::translate(lightPos);
-        glm::mat4 scale = Maths::scale(glm::vec3(0.1f));
-        glm::mat4 model = translate * scale;
 
-        // Send the MVP and MV matrices to the vertex shader
-        glm::mat4 MVP = camera.projection * camera.view * model;
-        glUniformMatrix4fv(glGetUniformLocation(shaderID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
+        for (unsigned int i = 0; i < static_cast<unsigned int>(lightSources.size()); i++)
+        {
+            // Calculate model matrix
+            glm::mat4 translate = Maths::translate(lightSources[i].position);
+            glm::mat4 scale = Maths::scale(glm::vec3(0.1f));
+            glm::mat4 model = translate * scale;
 
-        // Send model, view, projection matrices and light colour to light shader
-        glUniform3fv(glGetUniformLocation(shaderID, "lightColour"), 1, &lightColour[0]);
+            // Send the MVP and MV matrices to the vertex shader
+            glm::mat4 MVP = camera.projection * camera.view * model;
+            glUniformMatrix4fv(glGetUniformLocation(shaderID, "MVP"), 1, GL_FALSE, &MVP[0][0]);
 
-        // Draw light source
-        Sphere.draw(shaderID);
-        // ---------------------------------------------------------------------
+            // Send model, view, projection matrices and light colour to light shader
+            glUniform3fv(glGetUniformLocation(shaderID, "lightColour"), 1, &lightSources[i].colour[0]);
+
+            // Draw light source
+            Sphere.draw(shaderID);
+        }
+
+
 
 
 		glDisableVertexAttribArray(0);

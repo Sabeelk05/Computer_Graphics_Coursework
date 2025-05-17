@@ -1,64 +1,74 @@
 #version 330 core
 
-out vec3 colour;
-in vec2 UV; // Texture coordinates from vertex shader
+# define maxLights 10
+
+in vec2 UV;
 in vec3 fragmentPosition;
 in vec3 Normal;
 
 out vec3 fragmentColour;
 
-
-
-struct Light{
+struct Light
+{
     vec3 position;
     vec3 colour;
     float constant;
     float linear;
     float quadratic;
-    int type
-} ---> Carry on from this 
+    int type;
+};
 
-
-//uniforms
 uniform sampler2D diffuseMap;
 uniform float ka;
 uniform float kd;
-uniform vec3 lightColour;
-uniform vec3 lightPos;
 uniform float ks;
 uniform float Ns;
-uniform float constant;
-uniform float linear;
-uniform float quadratic;
-uniform bool useLighting;
+uniform Light lightSources[maxLights];
 
-void main()
+vec3 pointLight(vec3 lightPosition, vec3 lightColour, float constant, float linear, float quadratic);
+
+void main ()
 {
-    vec3 objectColour = vec3(texture(diffuseMap, UV)); //texture colour
-    
-    
-    if(!useLighting){
-        fragmentColour = objectColour;
-        return;
+    fragmentColour = vec3(0.0, 0.0, 0.0);
+    for (int i = 0; i < maxLights; i++)
+    {
+        // Determine light properties for current light source
+        vec3 lightPosition  = lightSources[i].position;
+        vec3 lightColour    = lightSources[i].colour;
+        float constant      = lightSources[i].constant;
+        float linear        = lightSources[i].linear;
+        float quadratic     = lightSources[i].quadratic;
+        
+        // Calculate point light
+        if (lightSources[i].type == 1)
+            fragmentColour += pointLight(lightPosition, lightColour, constant, linear, quadratic);
     }
-    
-    ////
-    vec3 ambient = ka * objectColour; //ambient light reflection
-    ////
-    ////
-    vec3 light = normalize(lightPos - fragmentPosition);
-    vec3 normal = normalize(Normal);
-    float cosTheta = max(dot(normal, light), 0);   ///Diffuse light reflection
-    vec3 diffuse = kd * lightColour * objectColour * cosTheta;
-    ////
-    vec3 camera = normalize(-fragmentPosition);
-    vec3 reflection = - light + 2 * dot(light, normal) * normal;
-    float cosAlpha = max(dot(camera, reflection), 0);
-    vec3 specular = ks * lightColour * pow(cosAlpha, Ns); //specular light reflection
-    ////
-    float distance = length(lightPos - fragmentPosition);
-    float attenuation = 1.0 / (constant + linear *distance + quadratic *distance *distance);
+}
 
-    
-    fragmentColour = (ambient + diffuse + specular) * attenuation;
+// Calculate point light
+vec3 pointLight(vec3 lightPosition, vec3 lightColour, float constant, float linear, float quadratic)
+{
+    vec3 objectColour = vec3(texture(diffuseMap, UV)); // Texture colour
+    ////
+    vec3 ambient = ka * objectColour; //ambient reflection
+    ////
+    ////
+    vec3 light      = normalize(lightPosition - fragmentPosition);
+    vec3 normal     = normalize(Normal);
+    float cosTheta  = max(dot(normal, light), 0); // diffuse reflection
+    vec3 diffuse    = kd * lightColour * objectColour * cosTheta;
+    ////
+    ////
+    vec3 reflection = - light + 2 * dot(light, normal) * normal;
+    vec3 camera     = normalize(-fragmentPosition);
+    float cosAlpha  = max(dot(camera, reflection), 0); // specular reflection
+    vec3 specular   = ks * lightColour * pow(cosAlpha, Ns);
+    ////
+    ////
+    float distance    = length(lightPosition - fragmentPosition);
+    float attenuation = 1.0 / (constant + linear * distance + quadratic * distance * distance); // attenuation
+    ////
+    ////
+    return (ambient + diffuse + specular) * attenuation; // final colour
+    ////
 }

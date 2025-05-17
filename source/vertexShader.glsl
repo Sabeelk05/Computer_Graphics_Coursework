@@ -6,7 +6,7 @@ layout(location = 1) in vec2 uv;
 layout(location = 2) in vec3 normal; //modelspace normal
 
 //output
-out vec2 UV;
+out vec2 UV;    
 out vec3 fragmentPosition;
 out vec3 Normal; //viewspace normal
 
