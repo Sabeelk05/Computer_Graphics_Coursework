@@ -1,0 +1,62 @@
+# Blender 4.4.3 MTL File: 'None'
+# www.blender.org
+
+newmtl m0
+Ns 92.156860
+Ka 1.000000 1.000000 1.000000
+Ks 0.449020 0.449020 0.449020
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/sabee/Downloads/game-cube-dkjb-donkey-kong/source/GameCube - Donkey Kong Jungle Beat - Donkey Kong/Donkey Kong/donkey_eye_ball.png
+
+newmtl m1
+Ns 92.156860
+Ka 1.000000 1.000000 1.000000
+Ks 0.449020 0.449020 0.449020
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/sabee/Downloads/game-cube-dkjb-donkey-kong/source/GameCube - Donkey Kong Jungle Beat - Donkey Kong/Donkey Kong/FurBodyColor.png
+
+newmtl m2
+Ns 92.156860
+Ka 1.000000 1.000000 1.000000
+Ks 0.449020 0.449020 0.449020
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/sabee/Downloads/game-cube-dkjb-donkey-kong/source/GameCube - Donkey Kong Jungle Beat - Donkey Kong/Donkey Kong/DonkeyMabuta.png
+
+newmtl m3
+Ns 92.156860
+Ka 1.000000 1.000000 1.000000
+Ks 0.449020 0.449020 0.449020
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/sabee/Downloads/game-cube-dkjb-donkey-kong/source/GameCube - Donkey Kong Jungle Beat - Donkey Kong/Donkey Kong/Tie.png
+
+newmtl m4
+Ns 92.156860
+Ka 1.000000 1.000000 1.000000
+Ks 0.449020 0.449020 0.449020
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/sabee/Downloads/game-cube-dkjb-donkey-kong/source/GameCube - Donkey Kong Jungle Beat - Donkey Kong/Donkey Kong/donkey_all.png
+
+newmtl m5
+Ns 92.156860
+Ka 1.000000 1.000000 1.000000
+Ks 0.449020 0.449020 0.449020
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:/Users/sabee/Downloads/game-cube-dkjb-donkey-kong/source/GameCube - Donkey Kong Jungle Beat - Donkey Kong/Donkey Kong/donkey_all.png
