@@ -1,6 +1,6 @@
 #version 330 core
 
-# define maxLights 10
+# define maxLights 8
 
 in vec2 UV;
 in vec3 fragmentPosition;
@@ -33,7 +33,7 @@ vec3 spotLight(vec3 lightPosition, vec3 lightDirection, vec3 lightColour, float 
 
 void main ()
 {
-
+    
     fragmentColour = vec3(0.0, 0.0, 0.0);
     for (int i = 0; i < maxLights; i++)
     {

@@ -13,7 +13,6 @@
 
 
 
-// Function prototypes
 void keyboardInput(GLFWwindow *window);
 void mouseInput(GLFWwindow* window);
 
@@ -338,7 +337,7 @@ int main( void )
 	light.linear = 0.4f;
 	light.quadratic = 0.02f;
 	light.type = 1;
-	//lightSources.push_back(light); 
+	lightSources.push_back(light); 
 
     light.position = glm::vec3(-4.0f, 6.0f, -8.0f);
 	lightSources.push_back(light); 
