@@ -31,9 +31,11 @@ struct Object {
 struct Light {
     glm::vec3 position;
     glm::vec3 colour;
+	glm::vec3 direction;
     float constant;
     float linear;
     float quadratic;
+	float cosPhi;
     unsigned int type;
 };
 
@@ -97,7 +99,7 @@ int main( void )
 	Model Sphere("../assets/sphere.obj"); //loads the sphere model
     Model donkeyKong("../assets/Donkey_Kong.obj"); 
     donkeyKong.addTexture("../assets/blue.bmp", "diffuse");
-	Sphere.addTexture("../assets/neutral_specular.png", "diffuse");
+    Sphere.addTexture("../assets/white.jpg", "diffuse");
 
 
     // Ensure we can capture keyboard inputs
@@ -318,9 +320,9 @@ int main( void )
     camera.eye = glm::vec3(0.0f, 0.0f, 4.0f);
     camera.target = objects[0].position;
 
-	donkeyKong.ka = 0.7f; //ambient light intensity
-	donkeyKong.kd = 0.5f; //diffuse light intensity
-	donkeyKong.ks = 1.0f; //specular light intensity
+	donkeyKong.ka = 0.35f; //ambient light intensity
+	donkeyKong.kd = 0.6f; //diffuse light intensity
+	donkeyKong.ks = 5.0f; //specular light intensity
 	donkeyKong.Ns = 20.0f; //specular exponent
 	float constant = 1.0f; 
     float quadratic = 0.02f;
@@ -330,16 +332,31 @@ int main( void )
     glm::vec3 lightColour = glm::vec3(1.0f, 1.0f, 0.5f);
 
     Light light;
-    light.position = glm::vec3(2.0f, 2.0f, 2.0f);
-    light.colour= glm::vec3(1.0f, 1.0f, 1.0f);
-	light.constant = 1.0f;
-	light.linear = 0.1f;
+    light.position = glm::vec3(1.0f,1.0f, -8.0f); //A point light source 
+    light.colour= glm::vec3(1.0f, 0.0f, 1.0f);
+	light.constant = 0.8f;
+	light.linear = 0.4f;
 	light.quadratic = 0.02f;
 	light.type = 1;
-	lightSources.push_back(light); //adds the light to the vector
+	//lightSources.push_back(light); 
 
-    light.position = glm::vec3(1.0f, 1.0f, -8.0f);
+    light.position = glm::vec3(-4.0f, 6.0f, -8.0f);
+	lightSources.push_back(light); 
+	light.position = glm::vec3(2.0f, 1.0f, 5.0f); //another point light source
     lightSources.push_back(light);
+
+
+    light.position = glm::vec3(-1.0f, 6.0f, -1.0f);
+	light.direction = glm::vec3(0.0f, -1.0f, 0.0f); 
+    light.cosPhi = std::cos(Maths::radians(45.0f));
+	light.colour = glm::vec3(0.0f, 1.0f, 0.0f);
+    light.type = 2;
+	lightSources.push_back(light); //a spotlight source
+
+	light.direction = glm::vec3(1.0f, -1.0f, 0.0f); 
+	light.colour = glm::vec3(1.0f, 0.0f, 0.0f);
+    light.type = 3;
+	lightSources.push_back(light); // a directional light source
 
 
     // Render loop
@@ -396,6 +413,9 @@ int main( void )
             glUniform1f(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].linear").c_str()), lightSources[i].linear);
             glUniform1f(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].quadratic").c_str()), lightSources[i].quadratic);
             glUniform1i(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].type").c_str()), lightSources[i].type);
+            glm::vec3 viewSpaceLightDirection = glm::vec3(camera.view * glm::vec4(lightSources[i].direction, 0.0f));
+			glUniform3fv(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].direction").c_str()), 1, &viewSpaceLightDirection[0]);
+			glUniform1f(glGetUniformLocation(shaderID, ("lightSources[" + idx + "].cosPhi").c_str()), lightSources[i].cosPhi);
         }
 
         // Send object lighting properties to the fragment shader
@@ -425,14 +445,14 @@ int main( void )
             glUniformMatrix4fv(glGetUniformLocation(shaderID, "MV"), 1, GL_FALSE, &MV[0][0]);
 
             if (objects[i].name == "Room") {
-                glUniform1i(glGetUniformLocation(shaderID, "useLighting"), false);
+                //glUniform1i(glGetUniformLocation(shaderID, "useLighting"), false);
 				glBindTexture(GL_TEXTURE_2D, roomTexture); //binds the texture to the shader)
 				glBindVertexArray(VAO);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 				glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
             }
             else {
-				glUniform1i(glGetUniformLocation(shaderID, "useLighting"), true);
+				//glUniform1i(glGetUniformLocation(shaderID, "useLighting"), true);
 				glBindTexture(GL_TEXTURE_2D, texture); //binds the texture to the shader)
             }
             if (objects[i].name == "DonkeyKong") {
